@@ -1,0 +1,60 @@
+// This file is part of www.nand2tetris.org
+// and the book "The Elements of Computing Systems"
+// by Nisan and Schocken, MIT Press.
+// File name: projects/05/CPU.hdl
+
+/**
+ * The Hack CPU (Central Processing unit), consisting of an ALU,
+ * two registers named A and D, and a program counter named PC.
+ */
+
+CHIP CPU {
+
+    IN  inM[16],         // M value input  (M = contents of RAM[A])
+        instruction[16], // Instruction for execution
+        reset;           // Signals whether to re-start the current
+                         // program (reset==1) or continue executing
+                         // the current program (reset==0).
+
+    OUT outM[16],        // M value output
+        writeM,          // Write to M? 
+        addressM[15],    // Address in data memory (of M)
+        pc[15];          // address of next instruction
+
+    PARTS:
+    DMux(in=true, sel=instruction[15], a=aInst, b=cInst);
+
+    // ARegister Logic
+    Mux16(a=aluOut, b=instruction, sel=aInst, out=instIn);
+    Or(a=aInst, b=instruction[5], out=aLoad);
+    ARegister(in=instIn, load=aLoad, out=aOut, out[0..14]=addressM);
+
+    // DRegister Logic
+    And(a=instruction[4], b=cInst, out=dLoad);
+    DRegister(in=aluOut, load=dLoad, out=dOut);
+
+    // ALU Logic
+    Mux16(a=aOut, b=inM, sel=instruction[12], out=aaOut);
+    ALU(x=dOut, y=aaOut, zx=instruction[11], nx=instruction[10],
+        zy=instruction[9], ny=instruction[8], f=instruction[7],
+        no=instruction[6], out=aluOut, out=outM, zr=zr, ng=ng);
+    
+    // Jump Logic
+    Not(in=zr, out=notzr);
+    Not(in=ng, out=notng);
+    And(a=notzr, b=notng, out=gt);
+
+    And(a=instruction[0], b=gt, out=jgt);
+    And(a=instruction[1], b=zr, out=jeq);
+    And(a=instruction[2], b=ng, out=jlt);
+
+    Or(a=jgt, b=jeq, out=jo);
+    Or(a=jo, b=jlt, out=joo);
+    And(a=cInst, b=joo, out=jOut);
+
+    // PC Logic
+    PC(in=aOut, load=jOut, inc=true, reset=reset, out[0..14]=pc);
+
+    // WriteM output
+    And(a=cInst, b=instruction[3], out=writeM);
+}
