@@ -18,6 +18,7 @@ class Assembler:
     
     def parse(self):
         for line in self._f:
+            # remove the newline char '\n'
             line = line.strip()
             # remove whitespaces from lines
             line = fh.removeSpaces(line)
@@ -28,7 +29,14 @@ class Assembler:
                 if self._isAInst(line):
                     # handle a instruction
                     self._handleAInst(line[1:])
-                elif 
+                # check if it's a loop marker
+                elif self._isLoopMarker(line):
+                    # don't do anything
+                    continue
+                # else must be a c-instruction
+                else:
+                    self._handleCInst(line)
+
         print(self._codeList)
 
     # convert a inst symbol to binary code
@@ -41,7 +49,27 @@ class Assembler:
             decaddr = self._ht.symbolHandler(str(aInst))
             address = self._dec2bin(decaddr, 15)
         print(aInst + " " + address)
-        self._codeList.insert(0, '0' + address)
+        self._codeList.append('0' + address)
+    
+    # convert c inst symbol to binary code
+    # update the code list    
+    def _handleCInst(self, cInst):
+        cBin = ''
+        if '=' in cInst:
+            cList = cInst.split('=')
+            dest, comp = cList[0], cList[1]
+            cBin = self._getCInst(comp, dest, 'null')
+        elif ';' in cInst:
+            cList = cInst.split(';')
+            comp, jump = cList[0], cList[1]
+            cBin = self._getCInst(comp, 'null', jump)
+        print(cInst + " " + cBin)
+        self._codeList.append(cBin)
+    
+    def _getCInst(self, comp, dest, jump):
+        return '111' + self._ht.compBin(comp) +\
+               self._ht.destBin(dest) +\
+               self._ht.jumpBin(jump)    
 
     # convert decimal to binary
     @staticmethod

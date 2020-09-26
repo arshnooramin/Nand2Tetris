@@ -62,7 +62,7 @@ class HTable:
     # gets the computation binary code for inputted cCode
     def compBin(self, cCode):
         try:
-            return self._dest[dCode]
+            return self._comp[cCode]
         # error handling to check if valid code
         except KeyError:
             print("Invalid computation code!")
