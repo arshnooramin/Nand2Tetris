@@ -14,26 +14,42 @@ class FileHandler:
     def isAsmFile(filePath):
         return filePath[-4:] == '.asm'
     
-    # class method to get the name of the assembly file
-    @staticmethod
-    def getFileName(filePath):
-        if '/' not in filePath:
-            return filePath[:-4]
-        else:
-            return filePath.split('/')[-1][:-4]
-    
     # write the file from provided list
     @staticmethod
     def writeHackFile(filePath, writeList):
-        fileName = self.getFileName(filePath) + '.hack'
-        pass
+        hackFilePath = filePath[:-4] + '-gen.hack'
+        with open(hackFilePath, 'w') as out:
+            out.writelines(writeList)
     
+    # remove whitespaces from the code
     @staticmethod
     def removeSpaces(line):
         return line.replace(" ", "")
 
+    # remove any inline comments
     @staticmethod
     def removeInlineComments(line):
         return line.split('//')[0]
+    
+    # convert decimal to binary
+    @staticmethod
+    def dec2bin(dec, bits):
+        return bin(dec)[2:].zfill(bits)
+    
+    # checks if line is either comments or whitespace
+    @staticmethod
+    def isCommentOrEmpty(line):
+        return line[:2] == '//' or \
+            line.isspace() or len(line) == 0
+
+    # checks if the line is an a-instruction
+    @staticmethod
+    def isAInst(line):
+        return line[0] == '@'
+    
+    # checks if the line is a loop marker
+    @staticmethod
+    def isLoopMarker(line):
+        return line[0] == '('
 
         

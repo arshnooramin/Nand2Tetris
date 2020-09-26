@@ -74,6 +74,10 @@ class HTable:
             self.symbCount += 1
             self._symbol[symbIn] = self.LAST_ADDRESS + self.symbCount
         return self._symbol[symbIn]
+    
+    # adds a new symbol to the symbol table
+    def addSymbol(self, symbIn, val):
+        self._symbol[symbIn] = val
 
     
 
