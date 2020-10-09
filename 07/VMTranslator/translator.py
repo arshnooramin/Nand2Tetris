@@ -1,6 +1,7 @@
 import sys
 from ctypes import *
 from fhandler import FileHandler as fh
+from cformat import CFormatter as cf
 
 # the main assembler script that converts asm to hack
 class Translator:
@@ -12,44 +13,65 @@ class Translator:
         self._f = open(filePath, 'r')
         # list of hack code w/ line as elem
         self._codeList = []
+        # index to keep track of all the jumps
+        self._jmpNum = 0
     
     # translate the .vm code by parsing
     def translate(self):
-        pass
-        # # populate the symbol table w/ loop markers
-        # self.parse(self._firstPass)
-        # # aseemble the code
-        # self.parse(self._secPass)
-        # # write assembled code to .hack file
-        # fh.writeAsmFile(self._filePath, self._codeList)
+        # aseemble the code
+        self.parse()
+        # write assembled code to .hack file
+        fh.writeAsmFile(self._filePath, self._codeList)
     
     # parse through the code, remove unwanted chars
-    def _parse(self):
-        pass
-        # for line in self._f:
-        #     # remove the newline char '\n'
-        #     line = line.strip()
-        #     # remove whitespaces from lines
-        #     line = fh.removeSpaces(line)
-        #     # check if there is parseable code in line
-        #     if not fh.isCommentOrEmpty(line):
-        #         # apply assembly logic to it
-        #         asmLogicFunc(line)
-        # # reset the file cursor to the start of file
-        # self._f.seek(0)
+    def parse(self):
+        for line in self._f:
+            # remove the newline char '\n'
+            line = line.strip()
+            # check if there is parseable code in line
+            if not fh.isCommentOrEmpty(line):
+                line = fh.removeInlineComments(line)
+                # split commands from the line
+                commands = line.split(" ")
+                # get the type of command
+                cmdtype = cf.commandType(commands[0])
+                # if it's a push or pop command handle it
+                if cmdtype == PUSH or cmdtype == POP:
+                    self._handlePushPop(commands, cmdtype)
+                # else if it's a arithmetic command handle it
+                elif cmdtype == ARITHMETIC:
+                    self._handleArithmetic(commands)
     
     # handle the arithmetic commands in line
-    def _handleArithmetic(self, line):
-        pass
+    def _handleArithmetic(self, commands):
+        outStr = ""
+        # get the type of arithmetic command
+        arithtype = cf.arithmeticType(commands[0])
+        # if it's a normal operator handle it
+        if arithtype == BI_OP:
+            outStr = cf.writeOpAsm(commands[0])
+        # if it's a unary operator handle it
+        elif arithtype == UN_OP:
+            outStr = cf.writeUnaryAsm(commands[0])
+        # if it's a comparator handle it
+        elif arithtype == COMP:
+            outStr = cf.writeCompAsm(commands[0], self._jmpNum)
+            self._jmpNum += 1
+        self._codeList.append(outStr)
     
     # handle the push/pop commands in line
-    def _handlePushPop(self, line):
-        pass
+    def _handlePushPop(self, commands, ptype):
+        outStr = ""
+        if ptype == PUSH:
+            outStr = cf.writePushAsm(commands[0], commands[1], commands[2])
+        elif ptype == POP:
+            outStr = cf.writePopAsm(commands[0], commands[1], commands[2])
+        self._codeList.append(outStr)
 
 # main/executable section of the code
 if __name__ == '__main__':
     if len(sys.argv) != 2:
-        sys.exit(".asm file path not provided")
+        sys.exit(".vm file path not provided")
     
     filePath = sys.argv[1]
 
@@ -58,8 +80,8 @@ if __name__ == '__main__':
        (not fh.isVmFile(filePath)):
         sys.exit("Incorrect .vm file path")
 
-    vm = Translator(filePath)
-    vm.translate()
+    tr = Translator(filePath)
+    tr.translate()
 
 
 
