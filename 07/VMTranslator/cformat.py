@@ -54,7 +54,6 @@ class CFormatter:
     @staticmethod
     def writePushPopAsm1(ptype, seg, num):
         if seg == "temp": num += 5
-        print(num)
         if ptype == PUSH:
             return "@{}\nD=M\n@{}\nA=D+A\n".format(CFormatter._segmap[seg], str(num)) + \
                 CFormatter._postPushAsm 
@@ -103,6 +102,7 @@ class CFormatter:
         elif command == "not" or command == "neg":
             return UN_OP
     
+    # returns the type of the push/pop command that is passed in
     @staticmethod
     def pushPopType(segment):
         if segment == "this" or segment == "local" or \

@@ -30,7 +30,6 @@ class Translator:
             line = line.strip()
             # check if there is parseable code in line
             if not fh.isCommentOrEmpty(line):
-                print(line)
                 line = fh.removeInlineComments(line)
                 # split commands from the line
                 commands = line.split(" ")
@@ -42,8 +41,6 @@ class Translator:
                 # else if it's a arithmetic command handle it
                 elif cmdtype == ARITHMETIC:
                     self._handleArithmetic(commands)
-                print(self._codeList)
-                print("\n")
     
     # handle the arithmetic commands in line
     def _handleArithmetic(self, commands):
@@ -68,11 +65,13 @@ class Translator:
         outStr = ""
         segment = commands[1]; index = int(commands[2])
         segtype = cf.pushPopType(segment)
-        # if command type is push write asm code for it
+        # if it's a group 1 command write asm code for it
         if segtype == GROUP_1:
             outStr = cf.writePushPopAsm1(ptype, segment, index)
+        # if it's a group 2 command write asm code for it
         elif segtype == GROUP_2:
             outStr = cf.writePushPopAsm2(ptype, segment, index)
+        # if it's a constant command write asm code for it
         elif segtype == CONSTANT:
             outStr = cf.writeConstantPushPopAsm(index)
         # add it to the code list
