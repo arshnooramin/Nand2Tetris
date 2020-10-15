@@ -25,16 +25,6 @@ class FileHandler:
     @staticmethod
     def removeInlineComments(line):
         return line.split('//')[0]
-
-    # # gets the first arg from each line of code
-    # @staticmethod
-    # def getFirstArg(line):
-    #     pass
-
-    # # gets the second arg from each line of code
-    # @staticmethod
-    # def getSecArg(line):
-    #     pass
     
     # write the file from provided list
     @staticmethod

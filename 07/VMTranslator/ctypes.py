@@ -10,6 +10,11 @@ POP = 3
 # CALL = 9
 
 # arithmetic type enumerations
-UN_OP = 10
-BI_OP = 11
-COMP = 12
+UN_OP = 10      # not, neg
+BI_OP = 11      # add, sub, and, or
+COMP = 12       # eq, lt, gt
+
+# push/pop groups and type enumeration
+GROUP_1 = 13    # this, local, argument, that, temp
+GROUP_2 = 14    # static, pointer
+CONSTANT = 15   # constant

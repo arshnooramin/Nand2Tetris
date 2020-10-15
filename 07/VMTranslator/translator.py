@@ -30,6 +30,7 @@ class Translator:
             line = line.strip()
             # check if there is parseable code in line
             if not fh.isCommentOrEmpty(line):
+                print(line)
                 line = fh.removeInlineComments(line)
                 # split commands from the line
                 commands = line.split(" ")
@@ -41,31 +42,40 @@ class Translator:
                 # else if it's a arithmetic command handle it
                 elif cmdtype == ARITHMETIC:
                     self._handleArithmetic(commands)
+                print(self._codeList)
+                print("\n")
     
     # handle the arithmetic commands in line
     def _handleArithmetic(self, commands):
         outStr = ""
         # get the type of arithmetic command
         arithtype = cf.arithmeticType(commands[0])
-        # if it's a normal operator handle it
+        # if it's a normal operator write asm code for it
         if arithtype == BI_OP:
             outStr = cf.writeOpAsm(commands[0])
-        # if it's a unary operator handle it
+        # if it's a unary operator write asm code for it
         elif arithtype == UN_OP:
             outStr = cf.writeUnaryAsm(commands[0])
-        # if it's a comparator handle it
+        # if it's a comparator write asm code for it
         elif arithtype == COMP:
             outStr = cf.writeCompAsm(commands[0], self._jmpNum)
             self._jmpNum += 1
+        # add it to the code list
         self._codeList.append(outStr)
     
     # handle the push/pop commands in line
     def _handlePushPop(self, commands, ptype):
         outStr = ""
-        if ptype == PUSH:
-            outStr = cf.writePushAsm(commands[0], commands[1], commands[2])
-        elif ptype == POP:
-            outStr = cf.writePopAsm(commands[0], commands[1], commands[2])
+        segment = commands[1]; index = int(commands[2])
+        segtype = cf.pushPopType(segment)
+        # if command type is push write asm code for it
+        if segtype == GROUP_1:
+            outStr = cf.writePushPopAsm1(ptype, segment, index)
+        elif segtype == GROUP_2:
+            outStr = cf.writePushPopAsm2(ptype, segment, index)
+        elif segtype == CONSTANT:
+            outStr = cf.writeConstantPushPopAsm(index)
+        # add it to the code list
         self._codeList.append(outStr)
 
 # main/executable section of the code
