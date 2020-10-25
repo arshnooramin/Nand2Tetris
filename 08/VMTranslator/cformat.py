@@ -63,7 +63,7 @@ class CFormatter:
     
     # write asm code push/pop command for static, pointer
     @staticmethod
-    def writePushPopAsm2(ptype, seg, num):
+    def writePushPopAsm2(ptype, seg, num=None):
         if seg == "pointer":
             if num == 0:
                 segmap = CFormatter._segmap["this"]
@@ -71,6 +71,8 @@ class CFormatter:
                 segmap = CFormatter._segmap["that"]
         elif seg == "static":
             segmap = str(16 + num)
+        else:
+            segmap = CFormatter._segmap[seg]
         if ptype == PUSH:
             return "@{}\n".format(segmap) + \
                 CFormatter._postPushAsm
@@ -78,6 +80,54 @@ class CFormatter:
             return "@{}\nD=A\n".format(segmap) + \
                 CFormatter._postPopAsm
     
+    # write asm code for the label command
+    @staticmethod
+    def writeLabelAsm(lblstr):
+        return "({})\n".format(lblstr)
+    
+    # write asm code for the goto command
+    @staticmethod
+    def writeGotoAsm(lblstr):
+        return "@{}\n0;JMP\n".format(lblstr)
+
+    # write asm code for the if-goto command
+    @staticmethod
+    def writeIfGotoAsm(lblstr):
+        return "@{}\nD;JNE\n".format(lblstr)
+    
+    # write asm code for the call command
+    @staticmethod
+    def writeCallAsm(fname, argnum, lblnum):
+        retlbl = "RETURN" + str(lblnum)
+        return "@{}\n".format(retlbl) + \
+            "D=A\n@SP\nA=M\nM=D\n@SP\nM=M+1\n" + \
+            CFormatter.writePushPopAsm2(PUSH, "local") + \
+            CFormatter.writePushPopAsm2(PUSH, "argument") + \
+            CFormatter.writePushPopAsm2(PUSH, "pointer", 0) + \
+            CFormatter.writePushPopAsm2(PUSH, "pointer", 1) + \
+            "@SP\nD=M\n@5\nD=D-A\n@{}\n".format(str(argnum)) + \
+            "D=D-A\n@ARG\nM=D\n@SP\nD=M\n@LCL\nM=D\n" + \
+            CFormatter.writeGotoAsm(fname) + \
+            CFormatter.writeLabelAsm(retlbl)
+    
+    # write asm code for the return command
+    @staticmethod
+    def writeReturnAsm():
+        return "@LCL\nD=M\n@FRAME\nM=D\n@5\nA=D-A\nD=M\n@RET\nM=D\n" + \
+            CFormatter.writePushPopAsm1(POP, "argument", 0) + \
+            "@ARG\nD=M\n@SP\nM=D+1\n@FRAME\nD=M-1\nAM=D\nD=M\n@THAT\n" + \
+            "M=D\n@FRAME\nD=M-1\nAM=D\nD=M\n@THIS\nM=D\n@FRAME\nD=M-1\n" + \
+            "AM=D\nD=M\n@ARG\nM=D\n@FRAME\nD=M-1\nAM=D\nD=M\n@LCL\nM=D\n" + \
+            "@RET\nA=M\n0;JMP\n"
+    
+    # write asm code for the if-goto command
+    @staticmethod
+    def writeFunctionAsm(fname, lclnum):
+        retstr = CFormatter.writeLabelAsm(fname)
+        for _ in range(lclnum):
+            retstr += CFormatter.writeConstantPushPopAsm(0)
+        return retstr
+
     # returns the type of the command that is passed in
     @staticmethod
     def commandType(command):
@@ -87,6 +137,18 @@ class CFormatter:
             return POP
         elif command in CFormatter._opmap.keys():
             return ARITHMETIC
+        elif command == "label":
+            return LABEL
+        elif command == "goto":
+            return GOTO
+        elif command == "if-goto":
+            return IF
+        elif command == "function":
+            return FUNCTION
+        elif command == "return":
+            return RETURN
+        elif command == "call":
+            return CALL
         # unknown command
         return -1
     

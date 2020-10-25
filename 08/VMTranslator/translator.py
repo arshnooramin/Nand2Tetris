@@ -15,6 +15,8 @@ class Translator:
         self._codeList = []
         # index to keep track of all the jumps
         self._jmpNum = 0
+        # index to keep track of all the jumps
+        self._lblNum = 0
     
     # translate the .vm code by parsing
     def translate(self):
@@ -30,6 +32,8 @@ class Translator:
             line = line.strip()
             # check if there is parseable code in line
             if not fh.isCommentOrEmpty(line):
+                writeStr = ""
+                # remove in-line comments from each line
                 line = fh.removeInlineComments(line)
                 # split commands from the line
                 commands = line.split(" ")
@@ -37,10 +41,30 @@ class Translator:
                 cmdtype = cf.commandType(commands[0])
                 # if it's a push or pop command handle it
                 if cmdtype == PUSH or cmdtype == POP:
-                    self._handlePushPop(commands, cmdtype)
+                    writeStr = self._handlePushPop(commands, cmdtype)
                 # else if it's a arithmetic command handle it
                 elif cmdtype == ARITHMETIC:
-                    self._handleArithmetic(commands)
+                    writeStr = self._handleArithmetic(commands)
+                # else if it's a label command handle it
+                elif cmdtype == LABEL:
+                    writeStr = cf.writeLabelAsm(commands[1])
+                # else if it's a goto command handle it
+                elif cmdtype == GOTO:
+                    writeStr = cf.writeGotoAsm(commands[1])
+                # else if it's a if-goto command handle it
+                elif cmdtype == IF:
+                    writeStr = cf.writeIfGotoAsm(commands[1])
+                # else if it's a call command handle it
+                elif cmdtype == CALL:
+                    writeStr = cf.writeCallAsm(commands[1], int(commands[2]), self._lblNum)
+                # else if it's a return command handle it
+                elif cmdtype == RETURN:
+                    writeStr = cf.writeReturnAsm()
+                # else if it's a function command handle it
+                elif cmdtype == FUNCTION:
+                    writeStr = cf.writeFunctionAsm(commands[1], int(commands[2]))
+                # add it to the code list
+                self._codeList.append(writeStr)
     
     # handle the arithmetic commands in line
     def _handleArithmetic(self, commands):
@@ -57,8 +81,7 @@ class Translator:
         elif arithtype == COMP:
             outStr = cf.writeCompAsm(commands[0], self._jmpNum)
             self._jmpNum += 1
-        # add it to the code list
-        self._codeList.append(outStr)
+        return outStr
     
     # handle the push/pop commands in line
     def _handlePushPop(self, commands, ptype):
@@ -74,8 +97,7 @@ class Translator:
         # if it's a constant command write asm code for it
         elif segtype == CONSTANT:
             outStr = cf.writeConstantPushPopAsm(index)
-        # add it to the code list
-        self._codeList.append(outStr)
+        return outStr
 
 # main/executable section of the code
 if __name__ == '__main__':
