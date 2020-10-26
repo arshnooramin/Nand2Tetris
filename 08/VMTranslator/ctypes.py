@@ -18,3 +18,4 @@ COMP = 12       # eq, lt, gt
 GROUP_1 = 13    # this, local, argument, that, temp
 GROUP_2 = 14    # static, pointer
 CONSTANT = 15   # constant
+STATIC = 16

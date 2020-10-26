@@ -1,20 +1,32 @@
+import os
+
 # class with helper functions to handle and parse the .vm input file
 class FileHandler:
     # checks if the user provided file path is valid
     @staticmethod
-    def fileExists(filePath):
-        try:
-            with open(filePath, 'r'): pass
-            return True
-        except OSError:
-            print("error1")
-            return False
+    def dirExists(dirPath):
+        return os.path.isdir(dirPath)
     
-    # check if the provided file is .vm format
+    # gets file paths for all the vm files in dir path
     @staticmethod
-    def isVmFile(filePath):
-        return filePath[-3:] == '.vm'
-    
+    def getVmFiles(dirPath):
+        filePaths = []
+        for file in os.listdir(dirPath):
+            if file.endswith(".vm"):
+                filePaths.append(os.path.join(dirPath, file))
+        return filePaths
+
+    # gets the name for the output asm files
+    @staticmethod
+    def getFileName(dirPath):
+        return dirPath.split('/')[-2]
+
+    # gets the name for the vm file
+    @staticmethod
+    def getVmFileName(filePath):
+        print(filePath.split('/')[-1][:-3])
+        return filePath.split('/')[-1][:-3]
+
     # checks if line is either comments or whitespace
     @staticmethod
     def isCommentOrEmpty(line):
@@ -28,9 +40,10 @@ class FileHandler:
     
     # write the file from provided list
     @staticmethod
-    def writeAsmFile(filePath, writeList):
-        hackFilePath = filePath[:-3] + '.asm'
-        with open(hackFilePath, 'w') as out:
+    def writeAsmFile(dirPath, writeList):
+        fileName = FileHandler.getFileName(dirPath)
+        asmFilePath = dirPath + fileName + '.asm'
+        with open(asmFilePath, 'w') as out:
             out.writelines(writeList)
 
 
