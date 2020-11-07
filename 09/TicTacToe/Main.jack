@@ -1,0 +1,28 @@
+// Created by Arsh Noor Amin
+// for ECEG 431 at Bucknell
+
+/** Initializes a new TicTacToe game and starts running it */
+class Main {
+    function void main() {
+        // Unit test for ThreeMatrix
+        var ThreeMatrix matrix;
+        var boolean ret;
+
+        let matrix = ThreeMatrix.new();
+        do matrix.add(0, 0, 0);
+        do matrix.add(0, 1, 0);
+        do matrix.add(0, 2, 0);
+        do matrix.add(1, 0, 0);
+        do matrix.add(1, 1, 0);
+        do matrix.add(1, 2, 0);
+        do matrix.add(2, 0, 0);
+        do matrix.add(2, 1, 0);
+        do matrix.add(2, 2, 0);
+        
+        if (matrix.compareRows() & matrix.compareCols() & matrix.compareDiag()) {
+            do Output.printString("True");
+        }
+        
+        return;
+    }
+}

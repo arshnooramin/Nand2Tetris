@@ -1,0 +1,68 @@
+// Created by Arsh Noor Amin
+// for ECEG 431 at Bucknell
+
+/** 3x3 Matrix Data Structure */
+class ThreeMatrix {
+    field Array r1, r2, r3;     // the arrays for each row of matrix
+
+    /* Construct a new matrix instance */
+    constructor ThreeMatrix new() {
+        let r1 = Array.new(3);
+        let r2 = Array.new(3);
+        let r3 = Array.new(3);
+        return this;
+    }
+
+    /** add/replace an entry in the matrix */
+    method void add(int row, int col, int val) {
+        if (row = 0) {
+            let r1[col] = val;
+        }
+        if (row = 1) {
+            let r2[col] = val;
+        }
+        if (row = 2) {
+            let r3[col] = val;
+        }
+        return;
+    }
+
+    /** check if elements of any of the rows are same */
+    method boolean compareRows() {
+        if ((r1[0] = r1[1]) & (r1[1] = r1[2])) {
+            return true;
+        }
+        if ((r2[0] = r2[1]) & (r2[1] = r2[2])) {
+            return true;
+        }
+        if ((r3[0] = r3[1]) & (r3[1] = r3[2])) {
+            return true;
+        }
+        return false;
+    }
+    
+    /** check if elements of any of the cols are same */
+    method boolean compareCols() {
+        if ((r1[0] = r2[0]) & (r2[0] = r3[0])) {
+            return true;
+        }
+        if ((r1[1] = r2[1]) & (r2[1] = r3[1])) {
+            return true;
+        }
+        if ((r1[2] = r2[2]) & (r2[2] = r3[2])) {
+            return true;
+        }
+        return false;
+    }
+
+    /** check if elements of any of the diagonals are same */
+    method boolean compareDiag() {
+        if ((r1[0] = r2[1]) & (r2[1] = r3[2])) {
+            return true;
+        }
+        if ((r1[2] = r2[1]) & (r2[1] = r3[0])) {
+            return true;
+        }
+        return false;
+    }
+}
