@@ -1,0 +1,78 @@
+// Created by Arsh Noor Amin
+// for ECEG 431 at Bucknell
+
+/**
+ * Implements the Tic Tac Toe game.
+ * This is a fully functional multiplayer tic tac toe game for 2 players.
+ * Users can take turns and make their moves by putting Xs and Os on the board.
+ * Each section of the board is controlled by a different key.
+ * Hence the board is mapped from key 'q' to 'c'. 
+ */
+class Game {
+    field Board board;      // board instance for this game
+
+    /** Constructs a new Tic Tac Toe game. */
+    constructor Game new() {
+        let board = Board.new();
+        do board.drawBoard();
+        return this;
+    }
+
+    /** Runs the game and handles user input */
+    method void run() {
+        var char key;   // the key currently pressed
+        var int player, ret;
+        var boolen exit, move;
+        let exit = false;
+        let player = 1;
+
+        while (~exit) {
+            do board.updateTurnMsg(player);
+            // check if the board is full
+            if (board.isFull()) {
+                do board.printEndMsg(0);
+                let exit = true;
+                return; 
+            }
+            // while a valid move is not made
+            let move = false;
+            while (~move) {
+                // waits for a key to be pressed
+                while (key = 0) {
+                    let key = Keyboard.keyPressed();
+                }
+                if (key = 81) { let move = board.makeMove(0, 0, player); }
+                if (key = 87) { let move = board.makeMove(1, 0, player); }
+                if (key = 69) { let move = board.makeMove(2, 0, player); }
+                if (key = 65) { let move = board.makeMove(0, 1, player); }
+                if (key = 83) { let move = board.makeMove(1, 1, player); }
+                if (key = 68) { let move = board.makeMove(2, 1, player); }
+                if (key = 90) { let move = board.makeMove(0, 2, player); }
+                if (key = 88) { let move = board.makeMove(1, 2, player); }
+                if (key = 67) { let move = board.makeMove(2, 2, player); }
+                // waits for the key to be released
+                while (~(key = 0)) {
+                    let key = Keyboard.keyPressed();
+                }
+            }
+            let player = alternator(player);
+            let ret = board.isWin();
+            if (~(ret = 0)) {
+                do board.printEndMsg(ret);
+                let exit = true;
+                return;
+            }
+        }
+        return;
+    }
+
+    method int alternator(int prev) {
+        if (prev = 1) {
+            return 2;
+        }
+        if (prev = 2) {
+            return 1;
+        }
+        return null;
+    }
+}

@@ -1,0 +1,240 @@
+function Game.new 0
+push constant 1
+call Memory.alloc 1
+pop pointer 0
+call Board.new 0
+pop this 0
+push this 0
+call Board.drawBoard 1
+pop temp 0
+push pointer 0
+return
+function Game.run 5
+push argument 0
+pop pointer 0
+push constant 0
+pop local 3
+push constant 1
+pop local 1
+label WHILE_EXP0
+push local 3
+not
+not
+if-goto WHILE_END0
+push this 0
+push local 1
+call Board.updateTurnMsg 2
+pop temp 0
+push this 0
+call Board.isFull 1
+if-goto IF_TRUE0
+goto IF_FALSE0
+label IF_TRUE0
+push this 0
+push constant 0
+call Board.printEndMsg 2
+pop temp 0
+push constant 0
+not
+pop local 3
+push constant 0
+return
+label IF_FALSE0
+push constant 0
+pop local 4
+label WHILE_EXP1
+push local 4
+not
+not
+if-goto WHILE_END1
+label WHILE_EXP2
+push local 0
+push constant 0
+eq
+not
+if-goto WHILE_END2
+call Keyboard.keyPressed 0
+pop local 0
+goto WHILE_EXP2
+label WHILE_END2
+push local 0
+push constant 81
+eq
+if-goto IF_TRUE1
+goto IF_FALSE1
+label IF_TRUE1
+push this 0
+push constant 0
+push constant 0
+push local 1
+call Board.makeMove 4
+pop local 4
+label IF_FALSE1
+push local 0
+push constant 87
+eq
+if-goto IF_TRUE2
+goto IF_FALSE2
+label IF_TRUE2
+push this 0
+push constant 1
+push constant 0
+push local 1
+call Board.makeMove 4
+pop local 4
+label IF_FALSE2
+push local 0
+push constant 69
+eq
+if-goto IF_TRUE3
+goto IF_FALSE3
+label IF_TRUE3
+push this 0
+push constant 2
+push constant 0
+push local 1
+call Board.makeMove 4
+pop local 4
+label IF_FALSE3
+push local 0
+push constant 65
+eq
+if-goto IF_TRUE4
+goto IF_FALSE4
+label IF_TRUE4
+push this 0
+push constant 0
+push constant 1
+push local 1
+call Board.makeMove 4
+pop local 4
+label IF_FALSE4
+push local 0
+push constant 83
+eq
+if-goto IF_TRUE5
+goto IF_FALSE5
+label IF_TRUE5
+push this 0
+push constant 1
+push constant 1
+push local 1
+call Board.makeMove 4
+pop local 4
+label IF_FALSE5
+push local 0
+push constant 68
+eq
+if-goto IF_TRUE6
+goto IF_FALSE6
+label IF_TRUE6
+push this 0
+push constant 2
+push constant 1
+push local 1
+call Board.makeMove 4
+pop local 4
+label IF_FALSE6
+push local 0
+push constant 90
+eq
+if-goto IF_TRUE7
+goto IF_FALSE7
+label IF_TRUE7
+push this 0
+push constant 0
+push constant 2
+push local 1
+call Board.makeMove 4
+pop local 4
+label IF_FALSE7
+push local 0
+push constant 88
+eq
+if-goto IF_TRUE8
+goto IF_FALSE8
+label IF_TRUE8
+push this 0
+push constant 1
+push constant 2
+push local 1
+call Board.makeMove 4
+pop local 4
+label IF_FALSE8
+push local 0
+push constant 67
+eq
+if-goto IF_TRUE9
+goto IF_FALSE9
+label IF_TRUE9
+push this 0
+push constant 2
+push constant 2
+push local 1
+call Board.makeMove 4
+pop local 4
+label IF_FALSE9
+label WHILE_EXP3
+push local 0
+push constant 0
+eq
+not
+not
+if-goto WHILE_END3
+call Keyboard.keyPressed 0
+pop local 0
+goto WHILE_EXP3
+label WHILE_END3
+goto WHILE_EXP1
+label WHILE_END1
+push pointer 0
+push local 1
+call Game.alternator 2
+pop local 1
+push this 0
+call Board.isWin 1
+pop local 2
+push local 2
+push constant 0
+eq
+not
+if-goto IF_TRUE10
+goto IF_FALSE10
+label IF_TRUE10
+push this 0
+push local 2
+call Board.printEndMsg 2
+pop temp 0
+push constant 0
+not
+pop local 3
+push constant 0
+return
+label IF_FALSE10
+goto WHILE_EXP0
+label WHILE_END0
+push constant 0
+return
+function Game.alternator 0
+push argument 0
+pop pointer 0
+push argument 1
+push constant 1
+eq
+if-goto IF_TRUE0
+goto IF_FALSE0
+label IF_TRUE0
+push constant 2
+return
+label IF_FALSE0
+push argument 1
+push constant 2
+eq
+if-goto IF_TRUE1
+goto IF_FALSE1
+label IF_TRUE1
+push constant 1
+return
+label IF_FALSE1
+push constant 0
+return

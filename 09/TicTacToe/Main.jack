@@ -4,40 +4,52 @@
 /** Initializes a new TicTacToe game and starts running it */
 class Main {
     function void main() {
+        // Unit test for Game
+        var Game game;
+        let game = Game.new();
+        do game.run();
+        
         // Unit test for ThreeMatrix
-        var ThreeMatrix matrix;
-        let matrix = ThreeMatrix.new();
+        // var ThreeMatrix matrix;
+        // let matrix = ThreeMatrix.new();
 
-        do matrix.add(0, 0, 1);
-        do matrix.add(0, 1, 0);
-        do matrix.add(0, 2, 0);
-        do matrix.add(1, 0, 1);
-        do matrix.add(1, 1, 1);
-        do matrix.add(1, 2, 1);
-        do matrix.add(2, 0, 1);
-        do matrix.add(2, 1, 0);
-        do matrix.add(2, 2, 1); 
+        // do matrix.add(0, 0, 1);
+        // // do matrix.add(0, 1, 0);
+        // do matrix.add(0, 2, 0);
+        // do matrix.add(1, 0, 1);
+        // do matrix.add(1, 1, 1);
+        // do matrix.add(1, 2, 1);
+        // do matrix.add(2, 0, 1);
+        // do matrix.add(2, 1, 0);
+        // do matrix.add(2, 2, 1); 
 
-        if (matrix.compareRows() 
-            & matrix.compareCols() 
-            & matrix.compareDiag()) {
-            do Output.printString("True");
-        }
+        // if (matrix.compareRows() 
+        //     & matrix.compareCols() 
+        //     & matrix.compareDiag()) {
+        //     do Output.printString("True");
+        // }
 
-        // Unit test for Board
-        var Board board;
-        let board = Board.new();
+        // if (matrix.isEmpty(0, 1)) {
+        //     do Output.printString("True");
+        // }
+        // else {
+        //     do Output.printString("False");
+        // }
 
-        do board.drawBoard();
-        do board.drawX(0, 0);
-        do board.drawX(1, 2);
-        do board.drawO(0, 1);
-        do board.drawO(1, 1);
-        do board.updateTurnMsg(2);
-        do Sys.wait(1000);
-        do board.updateTurnMsg(1);
-        do Sys.wait(1000);
-        do board.printEndMsg(1);
+        // // Unit test for Board
+        // var Board board;
+        // let board = Board.new();
+
+        // do board.drawBoard();
+        // do board.drawX(0, 0);
+        // do board.drawX(1, 2);
+        // do board.drawO(0, 1);
+        // do board.drawO(1, 1);
+        // do board.updateTurnMsg(2);
+        // do Sys.wait(1000);
+        // do board.updateTurnMsg(1);
+        // do Sys.wait(1000);
+        // do board.printEndMsg(1);
 
         return;
     }
