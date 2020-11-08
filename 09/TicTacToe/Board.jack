@@ -3,34 +3,85 @@
 
 /** Implements and maintains a graphical game board */
 class Board {
+    field ThreeMatrix matrix;       // board 3x3 matrix
+    field int margin, unit;         // board specs
 
     /** Constructs a new board instance */
     constructor Board new() {
-        
+        let matrix = ThreeMatrix.new();
+        let unit = 16;
+        let margin = 2*unit;
         return this;
+    }
+
+    /** Update the player turn message */
+    method void updateTurnMsg(int player) {
+        do Output.moveCursor(0, 4);
+        if (player = 1) {
+            do Output.printString("Turn: Player 1 -> Circle");
+        }
+        if (player = 2) {
+            do Output.printString("Turn: Player 2 -> Square");
+        }
+        return;
+    }
+
+    /** Display win/lose message */
+    method void printEndMsg(int player) {
+        do Screen.clearScreen();
+        do Output.moveCursor(0, 4);
+        if (player = 1) {
+            do Output.printString("Game Over! Player 1 Won!");
+        }
+        if (player = 2) {
+            do Output.printString("Game Over! Player 2 Won!");
+        }
+        return;
     }
 
     // Draws the board
     method void drawBoard() {
-        // do Output.moveCursor(0, 4);
-        // do Output.printString("Turn: Player 1 -> Circle");
-        // do Screen.drawRectangle(32, 16*3+32, 32+448, 16*3+32+32);
-        // do Screen.drawRectangle(32, 16*8+32, 32+448, 16*8+32+32);
-        // do Screen.drawRectangle(16*8+32, 32, 16*8+32+32, 32+208);
-        // do Screen.drawRectangle(16*18+32, 32, 16*18+32+32, 32+208);
-        // do Screen.drawCircle(96, 48, 16);
-        // do Screen.drawRectangle(240, 32, 272, 32+32);
-        // return;
+        var int x1, y1, x2, y2;
+        
+        // draw the horizontal dividers
+        let x1 = margin; let y1 = margin + (unit*3);
+        let x2 = margin + (unit*28); let y2 = y1 + margin;
+        do Screen.drawRectangle(x1, y1, x2, y2);
+
+        let x1 = margin; let y1 = margin + (unit*8);
+        let x2 = margin + (unit*28); let y2 = y1 + margin;
+        do Screen.drawRectangle(x1, y1, x2, y2);
+
+        // draw the vertical dividers
+        let x1 = margin + (unit*8); let y1 = margin;
+        let x2 = x1 + margin; let y2 = margin + (unit*13);
+        do Screen.drawRectangle(x1, y1, x2, y2);
+
+        let x1 = margin + (unit*18); let y1 = margin;
+        let x2 = x1 + margin; let y2 = margin + (unit*13);
+        do Screen.drawRectangle(x1, y1, x2, y2);
+
         return;
     }
 
     // Draws the x as square on the board
     method void drawX(int boardX, int boardY) {
+        var int x1, y1, x2, y2;
+        let x1 = margin + (unit*3) + ((boardX*10)*unit); 
+        let y1 = margin + ((boardY*5)*unit) + (unit/2);
+        let x2 = x1 + (2*unit); let y2 = y1 + (2*unit);
+
+        do Screen.drawRectangle(x1, y1, x2, y2);
         return;
     }
 
     // Draws the o as circle on the board
     method void drawO(int boardX, int boardY) {
+        var int x, y;
+        let x = margin + (unit*4) + ((boardX*10)*unit);
+        let y = margin + unit + ((boardY*5)*unit) + (unit/2);
+
+        do Screen.drawCircle(x, y, unit);
         return;
     }
 }

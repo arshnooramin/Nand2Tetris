@@ -27,6 +27,26 @@ class ThreeMatrix {
         return;
     }
 
+    /** checks if the coord in matrix is empty */
+    method boolean isEmpty(int row, int col) {
+        if (row = 0) {
+            if ((r1[col] = 0) | (r1[col] = 1)) {
+                return true;
+            }
+        }
+        if (row = 1) {
+            if ((r2[col] = 0) | (r2[col] = 1)) {
+                return true;
+            }
+        }
+        if (row = 2) {
+            if ((r3[col] = 0) | (r3[col] = 1)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     /** check if elements of any of the rows are same */
     method boolean compareRows() {
         if ((r1[0] = r1[1]) & (r1[1] = r1[2])) {
