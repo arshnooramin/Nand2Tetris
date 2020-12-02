@@ -23,8 +23,10 @@ class Tokenizer:
         self._filePath = filePath
         # file read object
         self._f = open(filePath, 'r') 
-        # dict of tokens and its respective type
-        self._tokenDict = {}
+        # list of tokens
+        self._tokenList = []
+        # list of token types
+        self._typeList = []
         # current line being analyzed
         self._code = ""
         # pointer for iterator
@@ -35,11 +37,11 @@ class Tokenizer:
 
     # getter method for token
     def token(self):
-        return list(self._tokenDict.keys())[self._idx]
+        return self._tokenList[self._idx]
     
     # getter method for token type
-    def tktype(self):
-        return list(self._tokenDict.values())[self._idx]
+    def type(self):
+        return self._typeList[self._idx]
     
     # to advance the iterator
     def next(self):
@@ -77,9 +79,10 @@ class Tokenizer:
         for keyword in Tokenizer._keywords:
             # if current code string starts with it
             if self._code.startswith(keyword):
-                # add it to token dict with its type
-                self._tokenDict[keyword] = KEYWORD
-                print(keyword, KEYWORD, "keyword")
+                # add it to token and type list
+                self._tokenList.append(keyword)
+                self._typeList.append(KEYWORD)
+                # print(keyword, KEYWORD, "keyword")
                 # get the substring minus found keyword
                 self._code = self._code[len(keyword):]
                 return True
@@ -89,9 +92,10 @@ class Tokenizer:
     def _handleSymbol(self):
         # if curr code char is a jack lang symbol
         if self._code[0] in Tokenizer._symbols:
-            # add it to token dict with its type
-            self._tokenDict[self._code[0]] = SYMBOL
-            print(self._code[0], SYMBOL, "symbol")
+            # add it to token and type list
+            self._tokenList.append(self._code[0])
+            self._typeList.append(SYMBOL)
+            # print(self._code[0], SYMBOL, "symbol")
             # get the substring minus found symbol
             self._code = self._code[1:]
             return True
@@ -109,9 +113,10 @@ class Tokenizer:
                 # keep updating the string
                 integer += self._code[0]
                 self._code = self._code[1:]
-            # update token dict and type
-            self._tokenDict[integer] = INTEGER
-            print(integer, INTEGER, "integer")
+            # add it to token and type list
+            self._tokenList.append(integer)
+            self._typeList.append(INTEGER)
+            # print(integer, INTEGER, "integer")
             return True
         return False
     
@@ -127,9 +132,10 @@ class Tokenizer:
                 string += self._code[0]
                 self._code = self._code[1:]
             self._code = self._code[1:]
-            # update token dict with this string
-            self._tokenDict[string] = STRING
-            print(string, STRING, "string")
+            # add it to token and type list
+            self._tokenList.append(string)
+            self._typeList.append(STRING)
+            # print(string, STRING, "string")
             return True
         return False
     
@@ -145,8 +151,9 @@ class Tokenizer:
                     self._code[0] == "_"):
                 identifier += self._code[0]
                 self._code = self._code[1:]
-            # update token dict with this identifier
-            self._tokenDict[identifier] = IDENTIFIER
-            print(identifier, IDENTIFIER, "identifier")
+            # add it to token and type list
+            self._tokenList.append(identifier)
+            self._typeList.append(IDENTIFIER)
+            # print(identifier, IDENTIFIER, "identifier")
             return True
         return False

@@ -35,9 +35,9 @@ class Compiler:
     # method to write the basic token xml
     def _writeXML(self):
         xml = '\t'*self._level
-        xml += "<{type}> {token} <{type}>\n"\
+        xml += "<{type}> {token} </{type}>\n"\
               .format(token=self._tk.token(),\
-                      type=types[self._tk.tktype()])
+                      type=types[self._tk.type()])
         self._codeList.append(xml)
         self._tk.next()
     
@@ -50,7 +50,7 @@ class Compiler:
             self._writeXML()
         # else exit with error
         else: Compiler._error()
-        if self._tk.tktype() == IDENTIFIER:
+        if self._tk.type() == IDENTIFIER:
             self._writeXML()
         else: Compiler._error()
         if self._tk.token() == '{':
@@ -59,15 +59,47 @@ class Compiler:
         # handle any class variables recursively
         self._handleClassVar()
         # handle class subroutines
-        self._handleSubRoutine()
+        self._handleSubroutine()
 
     # handle the compilation of class variables
     def _handleClassVar(self):
-       pass
+        # handle protection type
+        while (self._tk.token() == 'static' or \
+               self._tk.token() == 'field'):
+            self._write("<classVarDec>\n")
+            self._level += 1
+            self._writeXML()
+            # handle variable type
+            if (self._tk.token() == 'int' or \
+                self._tk.token() == 'char' or \
+                self._tk.token() == 'boolean' or \
+                self._tk.type() == IDENTIFIER):
+                self._writeXML()
+            else: Compiler._error()
+            print('0', self._tk.token())
+            # handle variable name
+            if self._tk.type() == IDENTIFIER:
+                self._writeXML()
+            else: Compiler._error()
+            # if multiple variable names
+            while self._tk.token() == ',':
+                self._writeXML()
+                if self._tk.type() == IDENTIFIER:
+                    self._writeXML()
+                else: Compiler._error()
+            # handle semicolon
+            if self._tk.token() == ';':
+                print('1', self._tk.token())
+                self._writeXML()
+                print('2', self._tk.token())
+            else: Compiler._error()
+            self._level -= 1
+            self._write("</classVarDec>\n")
 
     # handle the compilation of class subroutines
-    def _handleSubRoutine(self):
+    def _handleSubroutine(self):
        pass
+
 
 # main/executable section of the code
 if __name__ == '__main__':
