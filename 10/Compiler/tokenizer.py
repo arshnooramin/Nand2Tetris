@@ -1,7 +1,7 @@
 from fhandler import FileHandler as fh
 from ctypes import *
 
-# the main compiler class that converts jack tokens to xml
+# parses the input jack code and tokenizes it
 class Tokenizer:
     # jack lang keywords
     _keywords = [
@@ -27,9 +27,23 @@ class Tokenizer:
         self._tokenDict = {}
         # current line being analyzed
         self._code = ""
+        # pointer for iterator
+        self._idx = 0
 
         # parse the code and tokenize
         self._firstParse(); self._secParse()
+
+    # getter method for token
+    def token(self):
+        return list(self._tokenDict.keys())[self._idx]
+    
+    # getter method for token type
+    def tktype(self):
+        return list(self._tokenDict.values())[self._idx]
+    
+    # to advance the iterator
+    def next(self):
+        self._idx += 1
     
     # parse once to remove comments, newline chars, whitespaces
     def _firstParse(self):
@@ -105,6 +119,7 @@ class Tokenizer:
     def _handleString(self):
         # if curr char is quotation mark "
         if self._code[0] == "\"":
+            # ignore the quotation
             self._code = self._code[1:]
             string = ""
             # store everything btw the quotation
@@ -130,6 +145,7 @@ class Tokenizer:
                     self._code[0] == "_"):
                 identifier += self._code[0]
                 self._code = self._code[1:]
+            # update token dict with this identifier
             self._tokenDict[identifier] = IDENTIFIER
             print(identifier, IDENTIFIER, "identifier")
             return True

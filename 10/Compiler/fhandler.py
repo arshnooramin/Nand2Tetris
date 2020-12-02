@@ -17,7 +17,7 @@ class FileHandler:
     # write the file from provided list
     @staticmethod
     def writeXMLFile(filePath, writeList):
-        hackFilePath = filePath[:-5] + '.xml'
+        hackFilePath = filePath[:-5] + '-e.xml'
         with open(hackFilePath, 'w') as out:
             out.writelines(writeList)
     
