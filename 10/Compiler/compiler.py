@@ -153,9 +153,60 @@ class Compiler:
         else: self._error()
     
     def _handleVar(self):
-        pass
+        while self._tk.token() == 'var':
+            self._write("<varDec>\n")
+            self._level += 1
+            self._writeXML
+            # handle variable type
+            if (self._tk.token() in vartypes or \
+                self._tk.type() == IDENTIFIER):
+                self._writeXML()
+            else: self._error()
+            # handle variable name
+            if self._tk.type() == IDENTIFIER:
+                self._writeXML()
+            else: self._error()
+            # if multiple variable names
+            while self._tk.token() == ',':
+                self._writeXML()
+                if self._tk.type() == IDENTIFIER:
+                    self._writeXML()
+                else: self._error()
+            # handle semicolon
+            if self._tk.token() == ';':
+                self._writeXML()
+            else: self._error()
+            self._level -= 1
+            self._write("</varDec>\n")
 
     def _handleStatement(self):
+        # handle multiple statements
+        while self._tk.token() != '}':
+            # if statement is a let statement
+            if self._tk.token() == 'let':
+                self._handleLet()
+            elif self._tk.token() == 'if':
+                self._handleIf()
+            elif self._tk.token() == 'while':
+                self._handleWhile()
+            elif self._tk.token() == 'do':
+                self._handleDo()
+            elif self._tk.token() == 'return':
+                self._handleReturn()
+    
+    def _handleLet(self):
+        pass
+
+    def _handleIf(self):
+        pass
+
+    def _handleWhile(self):
+        pass
+
+    def _handleDo(self):
+        pass
+
+    def _handleReturn(self):
         pass
 
 # main/executable section of the code
