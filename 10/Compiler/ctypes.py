@@ -10,3 +10,7 @@ types = [
     "keyword", "symbol", "integerConstant",
     "stringConstant", "identifier"
 ]
+
+vartypes = [
+    "int", "boolean", "char"
+]

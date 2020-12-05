@@ -18,7 +18,7 @@ class Compiler:
     
     # compile the jack code by parsing
     def compile(self):
-        # start by compiling class then make recursive calls
+        # start by compiling class
         self._handleClass()
         # write assembled code to xml file
         fh.writeXMLFile(self._filePath, self._codeList)
@@ -28,9 +28,9 @@ class Compiler:
         xml = '\t'*self._level; xml += code
         self._codeList.append(xml)
 
-    @staticmethod
-    def _error():
-        sys.exit("incorrect jack grammar")
+    def _error(self):
+        sys.exit(self._tk.token() + \
+            " not a valid jack grammar")
     
     # method to write the basic token xml
     def _writeXML(self):
@@ -49,17 +49,21 @@ class Compiler:
         if self._tk.token() == 'class':
             self._writeXML()
         # else exit with error
-        else: Compiler._error()
+        else: self._error()
         if self._tk.type() == IDENTIFIER:
             self._writeXML()
-        else: Compiler._error()
+        else: self._error()
         if self._tk.token() == '{':
             self._writeXML()
-        else: Compiler._error()
-        # handle any class variables recursively
+        else: self._error()
+        # handle any class variables
         self._handleClassVar()
         # handle class subroutines
         self._handleSubroutine()
+        if self._tk.token() == '}':
+            self._writeXML()
+        self._level -= 1
+        self._write("</class>\n")
 
     # handle the compilation of class variables
     def _handleClassVar(self):
@@ -70,36 +74,89 @@ class Compiler:
             self._level += 1
             self._writeXML()
             # handle variable type
-            if (self._tk.token() == 'int' or \
-                self._tk.token() == 'char' or \
-                self._tk.token() == 'boolean' or \
+            if (self._tk.token() in vartypes or \
                 self._tk.type() == IDENTIFIER):
                 self._writeXML()
-            else: Compiler._error()
-            print('0', self._tk.token())
+            else: self._error()
             # handle variable name
             if self._tk.type() == IDENTIFIER:
                 self._writeXML()
-            else: Compiler._error()
+            else: self._error()
             # if multiple variable names
             while self._tk.token() == ',':
                 self._writeXML()
                 if self._tk.type() == IDENTIFIER:
                     self._writeXML()
-                else: Compiler._error()
+                else: self._error()
             # handle semicolon
             if self._tk.token() == ';':
-                print('1', self._tk.token())
                 self._writeXML()
-                print('2', self._tk.token())
-            else: Compiler._error()
+            else: self._error()
             self._level -= 1
             self._write("</classVarDec>\n")
 
     # handle the compilation of class subroutines
     def _handleSubroutine(self):
-       pass
+        # handle the method, constructor, function
+        while (self._tk.token() == 'constructor' or \
+              self._tk.token() == 'method' or \
+              self._tk.token() == 'function'):
+            self._write("<subroutineDec>\n")
+            self._level += 1
+            # writes the type of subroutine
+            self._writeXML()
+            # handle output type
+            if (self._tk.token() in vartypes or \
+                self._tk.token() == 'void' or \
+                self._tk.type() == IDENTIFIER):
+                self._writeXML()
+            else: self._error()
+            # handle subroutine name
+            if self._tk.type() == IDENTIFIER:
+                self._writeXML()
+            else: self._error()
+            # handle params if any
+            self._handleParam()
+            # handle subroutine body
+            if self._tk.token() == '{':
+                self._write("<subroutineBody>\n")
+                self._level += 1
+                self._writeXML()
+            else: self._error()
+            # handle var declarations
+            self._handleVar()
+            # handle statments
+            self._handleStatement()
+            if self._tk.token() == '}':
+                self._writeXML()
+            self._level -= 1
+            self._write("</subroutineBody>\n")
+            self._level -= 1
+            self._write("</subroutineDec>\n")
 
+    def _handleParam(self):
+        if self._tk.token() == '(':
+            self._writeXML()
+            self._write("<parameterList>\n")
+            self._level += 1
+            while self._tk.token() != ')':
+                # handle param type or name
+                if (self._tk.token() in vartypes or \
+                    self._tk.type() == IDENTIFIER or \
+                    self._tk.token() == ','):
+                    self._writeXML()
+                else: self._error()
+            # write closing bracket
+            self._level -= 1
+            self._write("</parameterList>\n")
+            self._writeXML()
+        else: self._error()
+    
+    def _handleVar(self):
+        pass
+
+    def _handleStatement(self):
+        pass
 
 # main/executable section of the code
 if __name__ == '__main__':
