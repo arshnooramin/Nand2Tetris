@@ -43,9 +43,13 @@ class Tokenizer:
     def type(self):
         return self._typeList[self._idx]
     
-    # to advance the iterator
+    # to increment the iterator
     def next(self):
         self._idx += 1
+
+    # to decrement the iterator
+    def prev(self):
+        self._idx -= 1
     
     # parse once to remove comments, newline chars, whitespaces
     def _firstParse(self):

@@ -3,6 +3,28 @@ from ctypes import *
 from fhandler import FileHandler as fh
 from tokenizer import Tokenizer
 
+# corresponding strings for each type
+types = [
+    "keyword", "symbol", "integerConstant",
+    "stringConstant", "identifier"
+]
+
+# valid variable types
+vartypes = [
+    "int", "boolean", "char"
+]
+
+# valid keyword constants
+keywords = [
+    "true", "false", "null", "this"
+]
+
+# valid operations
+operations = [
+    "+", "-", "*", "/", "&", "|", 
+    "<", ">", "="
+]
+
 # the main compiler class that converts jack tokens to xml
 class Compiler:
     # constructor takes file path as argument
@@ -29,14 +51,25 @@ class Compiler:
         self._codeList.append(xml)
 
     def _error(self):
-        sys.exit(self._tk.token() + \
+        fh.writeXMLFile(self._filePath, self._codeList)
+        sys.exit(self._tk.token() + " " + types[self._tk.type()] + \
             " not a valid jack grammar")
     
     # method to write the basic token xml
     def _writeXML(self):
         xml = '\t'*self._level
+        token = ''
+        # xml for '<', '>', '&'
+        if self._tk.token() == '<':
+            token = '&lt;'
+        elif self._tk.token() == '>':
+            token = '&gt;'
+        elif self._tk.token() == '&':
+            token = '&amp;'
+        else:
+            token = self._tk.token()
         xml += "<{type}> {token} </{type}>\n"\
-              .format(token=self._tk.token(),\
+              .format(token=token,\
                       type=types[self._tk.type()])
         self._codeList.append(xml)
         self._tk.next()
@@ -116,7 +149,7 @@ class Compiler:
                 self._writeXML()
             else: self._error()
             # handle params if any
-            self._handleParam()
+            self._handleParamList()
             # handle subroutine body
             if self._tk.token() == '{':
                 self._write("<subroutineBody>\n")
@@ -135,7 +168,7 @@ class Compiler:
             self._write("</subroutineDec>\n")
 
     # handle the compilation of subroutine parameter list
-    def _handleParam(self):
+    def _handleParamList(self):
         if self._tk.token() == '(':
             self._writeXML()
             self._write("<parameterList>\n")
@@ -158,7 +191,7 @@ class Compiler:
         while self._tk.token() == 'var':
             self._write("<varDec>\n")
             self._level += 1
-            self._writeXML
+            self._writeXML()
             # handle variable type
             if (self._tk.token() in vartypes or \
                 self._tk.type() == IDENTIFIER):
@@ -183,6 +216,8 @@ class Compiler:
 
     # handle compilation of statement(s)
     def _handleStatement(self):
+        self._write("<statements>\n")
+        self._level += 1
         # handle multiple statements
         while self._tk.token() != '}':
             # if statement is a let statement
@@ -200,15 +235,19 @@ class Compiler:
             # if statement is a return statement
             elif self._tk.token() == 'return':
                 self._handleReturn()
+        self._level -= 1
+        self._write("</statements>\n")
     
     # handle compilation of let statements
     def _handleLet(self):
+        self._write("<letStatement>\n")
+        self._level += 1
         self._writeXML()
         # handle variable name
         if self._tk.type() == IDENTIFIER:
             self._writeXML()
         else: self._error()
-        # check if there is expression
+        # check if array entry
         if self._tk.token() == '[':
             self._writeXML()
             # expect a expression
@@ -221,26 +260,205 @@ class Compiler:
             self._writeXML()
         else: self._error()
         # expect expression
-        self._handleExpression
+        self._handleExpression()
         # handle semicolon
         if self._tk.token() == ';':
             self._writeXML()
         else: self._error()
+        self._level -= 1
+        self._write("</letStatement>\n")
 
     def _handleIf(self):
-        pass
+        self._write("<ifStatement>\n")
+        self._level += 1
+        self._writeXML()
+        if self._tk.token() == '(':
+            self._writeXML()
+        else: self._error()
+        # expect a expression
+        self._handleExpression()
+        if self._tk.token() == ')':
+            self._writeXML()
+        else: self._error()
+        if self._tk.token() == '{':
+            self._writeXML()
+        else: self._error()
+        # expect statement(s)
+        self._handleStatement()
+        if self._tk.token() == '}':
+            self._writeXML()
+        else: self._error()
+        # if else statement present
+        if self._tk.token() == 'else':
+            self._writeXML()
+            if self._tk.token() == '{':
+                self._writeXML()
+            else: self._error()
+            # expect statement(s)
+            self._handleStatement()
+            if self._tk.token() == '}':
+                self._writeXML()
+            else: self._error()
+        self._level -= 1
+        self._write("</ifStatement>\n")
 
     def _handleWhile(self):
-        pass
+        self._write("<whileStatement>\n")
+        self._level += 1
+        self._writeXML()
+        if self._tk.token() == '(':
+            self._writeXML()
+        else: self._error()
+        # expect a expression
+        self._handleExpression()
+        if self._tk.token() == ')':
+            self._writeXML()
+        else: self._error()
+        if self._tk.token() == '{':
+            self._writeXML()
+        else: self._error()
+        # expect statement(s)
+        self._handleStatement()
+        if self._tk.token() == '}':
+            self._writeXML()
+        else: self._error()
+        self._level -= 1
+        self._write("</whileStatement>\n")
 
     def _handleDo(self):
-        pass
+        self._write("<doStatement>\n")
+        self._level += 1
+        self._writeXML()
+        # look-ahead token
+        self._tk.next()
+        # expect a subroutine call
+        if (self._tk.token() == '(' or \
+            self._tk.token() == '.'):
+            # go back to curr token
+            self._tk.prev()
+            self._handleCall()
+        else: self._error()
+        # handle semicolon
+        if self._tk.token() == ';':
+            self._writeXML()
+        else: self._error()
+        self._level -= 1
+        self._write("</doStatement>\n")    
 
     def _handleReturn(self):
-        pass
+        self._write("<returnStatement>\n")
+        self._level += 1
+        self._writeXML()
+        # if not semicolon
+        if not self._tk.token() == ';':
+            # expect expression
+            self._handleExpression()
+            # handle semicolon
+            if self._tk.token() == ';':
+                self._writeXML()
+            else: self._error()
+        else: self._writeXML()
+        self._level -= 1
+        self._write("</returnStatement>\n")
 
     def _handleExpression(self):
-        pass
+        self._write("<expression>\n")
+        self._level += 1
+        # expect a term
+        self._handleTerm()
+        # if there is a operation
+        while self._tk.token() in operations:
+            self._writeXML()
+            # expect a term after operation
+            self._handleTerm()
+        self._level -= 1
+        self._write("</expression>\n")
+
+    def _handleTerm(self):
+        self._write("<term>\n")
+        self._level += 1
+        # if curr token identifier
+        if self._tk.type() == IDENTIFIER:
+            # look-ahead token
+            self._tk.next()
+            # check if array entry
+            if self._tk.token() == '[':
+                # go back to curr token
+                self._tk.prev()
+                self._writeXML(); self._writeXML()
+                # expect expression
+                self._handleExpression()
+                if self._tk.token() == ']':
+                    self._writeXML()
+                else: self._error()
+            # check if subroutine call
+            elif (self._tk.token() == '(' or \
+                self._tk.token() == '.'):
+                # go back to curr token
+                self._tk.prev()
+                self._handleCall()
+            # else variable name
+            else:
+                # go back to curr token
+                self._tk.prev()
+                self._writeXML()
+        # else if constants
+        elif (self._tk.type() == INTEGER or \
+              self._tk.type() == STRING or \
+              self._tk.token() in keywords):
+            self._writeXML()
+        # else if unary operation
+        elif (self._tk.token() == '-' or \
+              self._tk.token() == '~'):
+            self._writeXML()
+            # expect term, recursively handle it
+            self._handleTerm()
+        # else if (expression)
+        elif self._tk.token() == '(':
+            self._writeXML()
+            # expect expression
+            self._handleExpression()
+            if self._tk.token() == ')':
+                self._writeXML()
+            else: self._error()
+        else: self._error()
+        self._level -= 1
+        self._write("</term>\n")
+
+    # handle compilation of a subroutine call
+    def _handleCall(self):
+        # handle subroutine/variable/class name
+        if self._tk.type() == IDENTIFIER:
+            self._writeXML()
+        else: self._error()
+        # if external class call
+        if self._tk.token() == '.':
+            self._writeXML()
+            # expect name of ext subroutine call
+            if self._tk.type() == IDENTIFIER:
+                self._writeXML()
+            else: self._error()
+        # expect expression list
+        self._handleExpressionList()
+    
+    # handle compilation of expression list
+    def _handleExpressionList(self):
+        if self._tk.token() == '(':
+            self._writeXML()
+            self._write("<expressionList>\n")
+            self._level += 1
+            while self._tk.token() != ')':
+                if self._tk.token() == ',':
+                    self._writeXML()
+                else:
+                    # handle param type or name
+                    self._handleExpression()
+            # write closing bracket
+            self._level -= 1
+            self._write("</expressionList>\n")
+            self._writeXML()
+        else: self._error()
+
 
 # main/executable section of the code
 if __name__ == '__main__':
