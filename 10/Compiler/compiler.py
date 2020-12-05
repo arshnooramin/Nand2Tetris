@@ -134,6 +134,7 @@ class Compiler:
             self._level -= 1
             self._write("</subroutineDec>\n")
 
+    # handle the compilation of subroutine parameter list
     def _handleParam(self):
         if self._tk.token() == '(':
             self._writeXML()
@@ -152,6 +153,7 @@ class Compiler:
             self._writeXML()
         else: self._error()
     
+    # handle compilation of variables
     def _handleVar(self):
         while self._tk.token() == 'var':
             self._write("<varDec>\n")
@@ -179,23 +181,51 @@ class Compiler:
             self._level -= 1
             self._write("</varDec>\n")
 
+    # handle compilation of statement(s)
     def _handleStatement(self):
         # handle multiple statements
         while self._tk.token() != '}':
             # if statement is a let statement
             if self._tk.token() == 'let':
                 self._handleLet()
+            # if statement is a if statement
             elif self._tk.token() == 'if':
                 self._handleIf()
+            # if statement is a while statement
             elif self._tk.token() == 'while':
                 self._handleWhile()
+            # if statement is a do statement
             elif self._tk.token() == 'do':
                 self._handleDo()
+            # if statement is a return statement
             elif self._tk.token() == 'return':
                 self._handleReturn()
     
+    # handle compilation of let statements
     def _handleLet(self):
-        pass
+        self._writeXML()
+        # handle variable name
+        if self._tk.type() == IDENTIFIER:
+            self._writeXML()
+        else: self._error()
+        # check if there is expression
+        if self._tk.token() == '[':
+            self._writeXML()
+            # expect a expression
+            self._handleExpression()
+            if self._tk.token() == ']':
+                self._writeXML()
+            else: self._error()
+        # handle the '=' sign
+        if self._tk.token() == '=':
+            self._writeXML()
+        else: self._error()
+        # expect expression
+        self._handleExpression
+        # handle semicolon
+        if self._tk.token() == ';':
+            self._writeXML()
+        else: self._error()
 
     def _handleIf(self):
         pass
@@ -207,6 +237,9 @@ class Compiler:
         pass
 
     def _handleReturn(self):
+        pass
+
+    def _handleExpression(self):
         pass
 
 # main/executable section of the code
