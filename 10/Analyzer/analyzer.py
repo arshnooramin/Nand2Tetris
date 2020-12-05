@@ -26,7 +26,7 @@ operations = [
 ]
 
 # the main compiler class that converts jack tokens to xml
-class Compiler:
+class Analyzer:
     # constructor takes file path as argument
     def __init__(self, filePath):
         # instantiate tokenizer class
@@ -472,5 +472,5 @@ if __name__ == '__main__':
        (not fh.isJackFile(filePath)):
         sys.exit("Incorrect .jack file path")
 
-    cp = Compiler(filePath)
+    cp = Analyzer(filePath)
     cp.compile()
